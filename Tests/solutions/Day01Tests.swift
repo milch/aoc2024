@@ -2,7 +2,7 @@ import Testing
 
 @testable import aoc2024
 
-let testInput = """
+private let testInput = """
     3   4
     4   3
     2   5
