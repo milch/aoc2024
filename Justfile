@@ -9,20 +9,20 @@ get_input day:
   test -f ./inputs/$file && exit 0
   curl -s https://adventofcode.com/2024/day/{{day}}/input -H @headers.txt > ./inputs/$file
 
-run day: (get_input day)
-  swift run aoc2024 --day {{day}}
+run day configuration="debug": (get_input day)
+  swift run -c {{configuration}} aoc2024 --day {{day}}
 
 test filter="":
   #!/usr/bin/env bash
   if [[ -z "{{filter}}" ]]; then
-    day=$(date +%d)
+    swift test --disable-xctest
   else
     case "{{filter}}" in
     ''|*[!0-9]*) filter="{{filter}}";;  # Use the filter as is
     *) filter=$(printf "Day%02d" {{filter}})
     esac
+    swift test --disable-xctest --filter $filter
   fi
-  swift test --disable-xctest --filter $filter
 
 watch filter="":
   fswatch -o ./Sources ./Tests | xargs -n1 -I{} bash -c "clear && printf '\033c'; just test {{filter}}"
