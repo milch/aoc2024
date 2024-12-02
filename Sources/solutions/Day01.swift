@@ -26,7 +26,6 @@ struct Day01: Solvable {
         return list.reduce(into: [:]) { counts, number in
             counts[number] = (counts[number] ?? 0) + 1
         }
-
     }
 
     func solvePart2() -> Int {
