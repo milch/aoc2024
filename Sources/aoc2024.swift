@@ -30,6 +30,7 @@ struct aoc2024: ParsableCommand {
 
     private func getSolver(for day: Int) -> Solvable.Type? {
         let solvers: [Int: Solvable.Type] = [
+            1: Day01.self
         ]
         return solvers[day]
     }
