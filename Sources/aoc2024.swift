@@ -49,13 +49,24 @@ struct aoc2024: ParsableCommand {
             print("\(day) not implemented yet")
             return
         }
+        let clock = ContinuousClock()
+        let style = Duration.UnitsFormatStyle(
+            allowedUnits: [.milliseconds, .microseconds, .nanoseconds],
+            width: .condensedAbbreviated,
+            maximumUnitCount: 1)
 
         let input = readInput(for: day)
         let solver = solverType.init(input: input)
-        let part1Result = solver.solvePart1()
-        let part2Result = solver.solvePart2()
+        var part1Result: Int = 0
+        let part1Timing = clock.measure {
+            part1Result = solver.solvePart1()
+        }
+        print("Day \(day) Part 1: \(part1Result) in \(part1Timing.formatted(style))")
 
-        print("Day \(day) Part 1: \(part1Result)")
-        print("Day \(day) Part 2: \(part2Result)")
+        var part2Result: Int = 0
+        let part2Timing = clock.measure {
+            part2Result = solver.solvePart2()
+        }
+        print("Day \(day) Part 2: \(part2Result) in \(part2Timing.formatted(style))")
     }
 }
