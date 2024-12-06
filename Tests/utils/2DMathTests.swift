@@ -88,4 +88,29 @@ import Testing
             #expect(value == expectedValue)
         }
     }
+
+    @Test func testRotatingVectors() {
+        let directionsInOrder = [
+            Direction.north, Direction.northEast, Direction.east, Direction.southEast,
+            Direction.south, Direction.southWest, Direction.west, Direction.northWest,
+        ]
+        let pairs = zip(directionsInOrder, directionsInOrder.dropFirst())
+        for (direction, rotatedDirection) in pairs {
+            #expect(direction.vector.rotated(by: -45) == rotatedDirection.vector)
+            #expect(rotatedDirection.vector.rotated(by: 45) == direction.vector)
+        }
+
+        #expect(Direction.north.vector.rotated(by: -90) == Direction.east.vector)
+        #expect(Direction.east.vector.rotated(by: -90) == Direction.south.vector)
+        #expect(Direction.south.vector.rotated(by: -90) == Direction.west.vector)
+        #expect(Direction.west.vector.rotated(by: -90) == Direction.north.vector)
+
+        #expect(Direction.north.vector.rotated(by: 90) == Direction.west.vector)
+        #expect(Direction.east.vector.rotated(by: 90) == Direction.north.vector)
+        #expect(Direction.south.vector.rotated(by: 90) == Direction.east.vector)
+        #expect(Direction.west.vector.rotated(by: 90) == Direction.south.vector)
+
+        #expect(Direction.north.vector.rotated(by: 180) == Direction.south.vector)
+        #expect(Direction.east.vector.rotated(by: -180) == Direction.west.vector)
+    }
 }

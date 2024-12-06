@@ -55,21 +55,32 @@ enum Direction: CaseIterable {
     var vector: Point {
         switch self {
         case .north:
-            return [0, -1]
+            return [-1, 0]
         case .northEast:
-            return [1, -1]
+            return [-1, 1]
         case .east:
-            return [1, 0]
+            return [0, 1]
         case .southEast:
             return [1, 1]
         case .south:
-            return [0, 1]
+            return [1, 0]
         case .southWest:
-            return [-1, 1]
+            return [1, -1]
         case .west:
-            return [-1, 0]
+            return [0, -1]
         case .northWest:
             return [-1, -1]
         }
+    }
+}
+
+extension Point {
+    func rotated(by degrees: Float) -> Point {
+        let radians = degrees * .pi / 180
+        let cos: Float = cos(radians)
+        let sin: Float = sin(radians)
+        let x = Float(self.x) * cos - Float(self.y) * sin
+        let y = Float(self.x) * sin + Float(self.y) * cos
+        return Point(Int(x.rounded()), Int(y.rounded()))
     }
 }
