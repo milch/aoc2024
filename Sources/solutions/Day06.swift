@@ -25,7 +25,7 @@ struct Position: Equatable, Hashable {
 }
 
 enum PathResult {
-    case trace(Set<Position>)
+    case trace([Point])
     case loop
 }
 
@@ -38,12 +38,15 @@ struct Day06: Solvable {
         self.guardStartPosition = self.map.points().first { $0.1 == .guard }!.0
     }
 
-    func tracePath(start: Point, direction: Direction = .north, obstacleAt: Point? = nil)
+    func tracePath(
+        start: Point, direction: Point = Direction.north.vector, obstacleAt: Point? = nil
+    )
         -> PathResult
     {
         var current = start
-        var direction = direction.vector
+        var direction = direction
         var seen = Set<Position>()
+        var path = [Point]()
 
         outer: while true {
             let next = current &+ direction
@@ -54,6 +57,7 @@ struct Day06: Solvable {
             }
 
             seen.insert(Position(guardPosition: current, directionVector: direction))
+            path.append(current)
             let tile: Tile? =
                 if let obstacleAt = obstacleAt, obstacleAt == next {
                     .some(.obstruction)
@@ -74,7 +78,7 @@ struct Day06: Solvable {
 
         }
 
-        return .trace(seen)
+        return .trace(path)
     }
 
     func solvePart1() -> Int {
@@ -82,11 +86,13 @@ struct Day06: Solvable {
             fatalError("Unexpected loop in the path")
         }
 
-        return Set(trace.map { $0.guardPosition }).count
+        return Set(trace).count
     }
 
-    func hasLoop(start: Point, extraObstacleAt: Point, direction: Direction = .north) -> Bool {
-        let result = tracePath(start: start, obstacleAt: extraObstacleAt)
+    func hasLoop(start: Point, extraObstacleAt: Point, movement: Point = Direction.north.vector)
+        -> Bool
+    {
+        let result = tracePath(start: start, direction: movement, obstacleAt: extraObstacleAt)
         switch result {
         case .loop:
             return true
@@ -99,14 +105,18 @@ struct Day06: Solvable {
         guard case let .trace(startingPath) = tracePath(start: guardStartPosition) else {
             fatalError("Unexpected loop in the path")
         }
-        let pathWithoutGuard = startingPath.filter { position in
-            !(position.guardPosition == guardStartPosition
-                && position.directionVector == Direction.north.vector)
-        }
-        let obstructionCandidates = Set(pathWithoutGuard.map { $0.guardPosition })
-        return obstructionCandidates.filter {
-            hasLoop(start: guardStartPosition, extraObstacleAt: $0)
-        }
-        .count
+
+        var seen = Set<Point>()
+        return zip(startingPath, startingPath.dropFirst()).filter {
+            (previous, current) in
+            let vector = current &- previous
+            if !seen.insert(current).inserted {
+                return false
+            }
+
+            return hasLoop(
+                start: previous, extraObstacleAt: current,
+                movement: vector.rotated(by: -90))
+        }.count
     }
 }
