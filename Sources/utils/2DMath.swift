@@ -83,4 +83,27 @@ extension Point {
         let y = Float(self.x) * sin + Float(self.y) * cos
         return Point(Int(x.rounded()), Int(y.rounded()))
     }
+
+    func equivalentDirection() -> Direction {
+        switch (self.x, self.y) {
+        case (-1, 0):
+            return .north
+        case (-1, 1):
+            return .northEast
+        case (0, 1):
+            return .east
+        case (1, 1):
+            return .southEast
+        case (1, 0):
+            return .south
+        case (1, -1):
+            return .southWest
+        case (0, -1):
+            return .west
+        case (-1, -1):
+            return .northWest
+        default:
+            fatalError("Invalid vector for conversion to direction")
+        }
+    }
 }
