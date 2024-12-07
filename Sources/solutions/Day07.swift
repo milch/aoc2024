@@ -56,8 +56,10 @@ struct Day07: Solvable {
         self.equations = try! Day07Parser().parse(input)
     }
 
-    fileprivate func findBalancingEquations(forOperators operators: [Operator]) -> [(Int, [Int])] {
-        return self.equations.filter { (expectedResult, values) in
+    fileprivate func findBalancingEquations(forOperators operators: [Operator]) async -> [(
+        Int, [Int]
+    )] {
+        return await self.equations.concurrentFilter { (expectedResult, values) in
             var queue = [Operation]()
             operators.forEach {
                 queue.append(
@@ -88,14 +90,14 @@ struct Day07: Solvable {
         }
     }
 
-    func solvePart1() -> Int {
-        return findBalancingEquations(forOperators: Operator.simpleOperators).reduce(0) {
+    func solvePart1() async -> Int {
+        return await findBalancingEquations(forOperators: Operator.simpleOperators).reduce(0) {
             $0 + $1.0
         }
     }
 
-    func solvePart2() -> Int {
-        return findBalancingEquations(forOperators: Operator.allCases).reduce(0) {
+    func solvePart2() async -> Int {
+        return await findBalancingEquations(forOperators: Operator.allCases).reduce(0) {
             $0 + $1.0
         }
     }

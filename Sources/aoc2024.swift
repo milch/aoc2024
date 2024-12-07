@@ -9,22 +9,12 @@ import Foundation
 
 protocol Solvable {
     init(input: String)
-    func solvePart1() -> Int
-    func solvePart2() -> Int
-}
-
-extension Solvable {
-    func solvePart1() -> Int {
-        return 0
-    }
-
-    func solvePart2() -> Int {
-        return 0
-    }
+    func solvePart1() async -> Int
+    func solvePart2() async -> Int
 }
 
 @main
-struct aoc2024: ParsableCommand {
+struct aoc2024: AsyncParsableCommand {
     @Option(name: .shortAndLong, help: "Day number")
     var day: Int
 
@@ -46,7 +36,7 @@ struct aoc2024: ParsableCommand {
         return try! String(contentsOfFile: inputFileName, encoding: .utf8)
     }
 
-    mutating func run() throws {
+    mutating func run() async throws {
         guard let solverType = getSolver(for: day) else {
             print("\(day) not implemented yet")
             return
@@ -60,14 +50,14 @@ struct aoc2024: ParsableCommand {
         let input = readInput(for: day)
         let solver = solverType.init(input: input)
         var part1Result: Int = 0
-        let part1Timing = clock.measure {
-            part1Result = solver.solvePart1()
+        let part1Timing = await clock.measure {
+            part1Result = await solver.solvePart1()
         }
         print("Day \(day) Part 1: \(part1Result) in \(part1Timing.formatted(style))")
 
         var part2Result: Int = 0
-        let part2Timing = clock.measure {
-            part2Result = solver.solvePart2()
+        let part2Timing = await clock.measure {
+            part2Result = await solver.solvePart2()
         }
         print("Day \(day) Part 2: \(part2Result) in \(part2Timing.formatted(style))")
     }
