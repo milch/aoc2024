@@ -1,3 +1,4 @@
+import Collections
 import Foundation
 import Parsing
 
@@ -23,7 +24,11 @@ private enum Operator: String, CaseIterable {
     }
 }
 
-private struct Operation: Equatable {
+private struct Operation: Equatable, Comparable {
+    static func < (lhs: Operation, rhs: Operation) -> Bool {
+        lhs.intermediateResult < rhs.intermediateResult
+    }
+
     let intermediateResult: Int
     let `operator`: Operator
     let nextItemIndex: Int
@@ -56,18 +61,19 @@ struct Day07: Solvable {
         self.equations = try! Day07Parser().parse(input)
     }
 
-    fileprivate func findBalancingEquations(forOperators operators: [Operator]) async -> [(
+    fileprivate func findBalancingEquations(forOperators operators: [Operator]) -> [(
         Int, [Int]
     )] {
-        return await self.equations.concurrentFilter { (expectedResult, values) in
-            var queue = [Operation]()
-            operators.forEach {
-                queue.append(
-                    Operation(intermediateResult: values.first!, operator: $0, nextItemIndex: 1)
-                )
-            }
-            while !queue.isEmpty {
-                let operation = queue.removeFirst()
+        return self.equations.filter { (expectedResult, values) in
+            var heap = Heap<Operation>()
+            heap.insert(
+                contentsOf:
+                    operators.map {
+                        Operation(intermediateResult: values.first!, operator: $0, nextItemIndex: 1)
+                    }
+            )
+            while !heap.isEmpty {
+                let operation = heap.removeMax()
                 let lhs = operation.intermediateResult
                 let rhs = values[operation.nextItemIndex]
                 let result = operation.operator.evaluate(lhs: lhs, rhs: rhs)
@@ -78,12 +84,14 @@ struct Day07: Solvable {
                 }
                 guard operation.nextItemIndex + 1 < values.count else { continue }
 
-                operators.forEach {
-                    queue.append(
-                        Operation(
-                            intermediateResult: result, operator: $0,
-                            nextItemIndex: operation.nextItemIndex + 1))
-                }
+                heap.insert(
+                    contentsOf:
+                        operators.map {
+                            Operation(
+                                intermediateResult: result, operator: $0,
+                                nextItemIndex: operation.nextItemIndex + 1)
+                        }
+                )
             }
 
             return false
@@ -91,13 +99,13 @@ struct Day07: Solvable {
     }
 
     func solvePart1() async -> Int {
-        return await findBalancingEquations(forOperators: Operator.simpleOperators).reduce(0) {
+        return findBalancingEquations(forOperators: Operator.simpleOperators).reduce(0) {
             $0 + $1.0
         }
     }
 
     func solvePart2() async -> Int {
-        return await findBalancingEquations(forOperators: Operator.allCases).reduce(0) {
+        return findBalancingEquations(forOperators: Operator.allCases).reduce(0) {
             $0 + $1.0
         }
     }
