@@ -103,7 +103,11 @@ extension Point {
         case (-1, -1):
             return .northWest
         default:
-            fatalError("Invalid vector for conversion to direction")
+            fatalError("Invalid vector for conversion to direction: \(self)")
         }
+    }
+
+    var magnitude: Int {
+        return Int(sqrt(Float(self.x * self.x + self.y * self.y)).rounded())
     }
 }
