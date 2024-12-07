@@ -32,10 +32,24 @@ enum PathResult {
 struct Day06: Solvable {
     let map: [[Tile]]
     let guardStartPosition: Point
+    /// Key: row, value: columns in that row for which there is an obstruction
+    let obstructionsByRow: [Int: [Int]]
+    /// Key: column, value: rows in that column for which there is an obstruction
+    let obstructionsByColumn: [Int: [Int]]
 
     init(input: String) {
         self.map = try! MapParser().parse(input)
         self.guardStartPosition = self.map.points().first { $0.1 == .guard }!.0
+
+        let obstructionLocations = self.map.points().filter { $1 == .obstruction }.map { $0.0 }
+        self.obstructionsByRow = Dictionary(grouping: obstructionLocations, by: { $0.x }).mapValues
+        {
+            $0.map { $0.y }.sorted()
+        }
+        self.obstructionsByColumn = Dictionary(grouping: obstructionLocations, by: { $0.y })
+            .mapValues {
+                $0.map { $0.x }.sorted()
+            }
     }
 
     func tracePath(
@@ -89,16 +103,55 @@ struct Day06: Solvable {
         return Set(trace).count
     }
 
-    func hasLoop(start: Point, extraObstacleAt: Point, movement: Point = Direction.north.vector)
+    func hasLoop(start: Point, extraObstacleAt: Point, movement: Direction)
         -> Bool
     {
-        let result = tracePath(start: start, direction: movement, obstacleAt: extraObstacleAt)
-        switch result {
-        case .loop:
-            return true
-        case .trace:
-            return false
+        var visited = Set<Position>()
+        var current: Point? = start
+        var direction = movement
+
+        while let point = current {
+            if !visited.insert(Position(guardPosition: point, directionVector: direction.vector))
+                .inserted
+            {
+                return true
+            }
+
+            var obstructedRows = obstructionsByColumn[point.y] ?? []
+            var obstructedColumns = obstructionsByRow[point.x] ?? []
+            if extraObstacleAt.x == point.x {
+                obstructedColumns.insertSorted(extraObstacleAt.y)
+            }
+            if extraObstacleAt.y == point.y {
+                obstructedRows.insertSorted(extraObstacleAt.x)
+            }
+
+            switch direction {
+            case .north:
+                let obstructedRow = obstructedRows.last { $0 < point.x }
+                guard let obstructedRow = obstructedRow else { return false }
+                current = Point(x: obstructedRow + 1, y: point.y)
+                direction = .east
+            case .south:
+                let obstructedRow = obstructedRows.first { $0 > point.x }
+                guard let obstructionRow = obstructedRow else { return false }
+                current = Point(x: obstructionRow - 1, y: point.y)
+                direction = .west
+            case .east:
+                let obstructionColumn = obstructedColumns.first { $0 > point.y }
+                guard let obstructionColumn = obstructionColumn else { return false }
+                current = Point(x: point.x, y: obstructionColumn - 1)
+                direction = .south
+            case .west:
+                let obstructionColumn = obstructedColumns.last { $0 < point.y }
+                guard let obstructionColumn = obstructionColumn else { return false }
+                current = Point(x: point.x, y: obstructionColumn + 1)
+                direction = .north
+            default: fatalError("Invalid direction")
+            }
         }
+
+        return false
     }
 
     func solvePart2() -> Int {
@@ -116,7 +169,7 @@ struct Day06: Solvable {
 
             return hasLoop(
                 start: previous, extraObstacleAt: current,
-                movement: vector.rotated(by: -90))
+                movement: vector.rotated(by: -90).equivalentDirection())
         }.count
     }
 }
