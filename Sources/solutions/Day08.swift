@@ -40,15 +40,16 @@ struct Day08: Solvable {
         ).mapValues { $0.map { $0.0 } }
     }
 
-    func computeAntinodes(_ antinodesForAntennae: ((Point, Point)) -> [Point]) -> Set<Point> {
+    func computeAntinodes(_ antinodesForAntennae: ([Point]) -> [Point]) -> Set<Point> {
         let antinodes = antennaPositions.flatMap { (label, antennae) in
-            antennae.combinationsOfTwo().flatMap(antinodesForAntennae)
+            antennae.combinations(of: 2).flatMap(antinodesForAntennae)
         }
         return Set(antinodes)
     }
 
     func solvePart1() async -> Int {
-        computeAntinodes { (a, b) in
+        computeAntinodes { (points) in
+            let (a, b) = (points[0], points[1])
             let firstNode = b &- (a &- b)
             let secondNode = a &- (b &- a)
             return [firstNode, secondNode].filter { map.containsPoint($0) }
@@ -56,7 +57,8 @@ struct Day08: Solvable {
     }
 
     func solvePart2() async -> Int {
-        computeAntinodes { (a, b) in
+        computeAntinodes { (points) in
+            let (a, b) = (points[0], points[1])
             let bNodes = (0...).lazy.map { b &- $0 &* (a &- b) }.prefix {
                 map.containsPoint($0)
             }
