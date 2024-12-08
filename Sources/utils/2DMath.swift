@@ -19,6 +19,10 @@ extension Array where Element: RandomAccessCollection, Element.Index == Int {
     func points() -> PointsIterator<Self> {
         PointsIterator(self)
     }
+
+    func containsPoint(_ point: Point) -> Bool {
+        indices.contains(point.x) && self[point.x].indices.contains(point.y)
+    }
 }
 
 struct PointsIterator<T: RandomAccessCollection>: IteratorProtocol, Sequence

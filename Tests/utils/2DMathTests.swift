@@ -113,4 +113,24 @@ import Testing
         #expect(Direction.north.vector.rotated(by: 180) == Direction.south.vector)
         #expect(Direction.east.vector.rotated(by: -180) == Direction.west.vector)
     }
+
+    @Test func testContainsPoint() {
+        let grid: [[Int]] = [
+            [1, 2, 3],
+            [4, 5, 6],
+            [7, 8, 9],
+        ]
+        #expect(grid.containsPoint([0, 0]))
+        #expect(grid.containsPoint([0, 1]))
+        #expect(grid.containsPoint([0, 2]))
+        #expect(grid.containsPoint([1, 0]))
+        #expect(grid.containsPoint([1, 1]))
+        #expect(grid.containsPoint([1, 2]))
+        #expect(grid.containsPoint([2, 0]))
+        #expect(grid.containsPoint([2, 1]))
+        #expect(grid.containsPoint([2, 2]))
+        #expect(!grid.containsPoint([0, 3]))
+        #expect(!grid.containsPoint([3, 0]))
+        #expect(!grid.containsPoint([3, 3]))
+    }
 }
