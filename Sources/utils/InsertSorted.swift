@@ -24,8 +24,9 @@ extension RandomAccessCollection where Element: Comparable {
 }
 
 extension Array where Element: Comparable {
-    mutating func insertSorted(_ element: Element) {
-        guard let index = insertionIndex(of: element) else { return }
+    @discardableResult mutating func insertSorted(_ element: Element) -> Index? {
+        guard let index = insertionIndex(of: element) else { return nil }
         insert(element, at: index)
+        return index
     }
 }
