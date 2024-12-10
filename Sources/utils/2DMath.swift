@@ -76,6 +76,10 @@ enum Direction: CaseIterable {
             return [-1, -1]
         }
     }
+
+    static var allCardinal: [Direction] {
+        [.north, .east, .south, .west]
+    }
 }
 
 extension Point {
