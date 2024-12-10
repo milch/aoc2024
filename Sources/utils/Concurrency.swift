@@ -21,4 +21,24 @@ extension Sequence where Element: Sendable {
             return filteredElements
         }
     }
+
+    func concurrentMap<T>(_ transform: @Sendable @escaping (Element) async -> T) async -> [T]
+    where T: Sendable {
+        return await withTaskGroup(of: T.self) { group in
+            // Add tasks for each element
+            for element in self {
+                group.addTask {
+                    let result = await transform(element)
+                    return result
+                }
+            }
+
+            // Collect results
+            var transformedElements = [T]()
+            for await transformedElement in group {
+                transformedElements.append(transformedElement)
+            }
+            return transformedElements
+        }
+    }
 }
