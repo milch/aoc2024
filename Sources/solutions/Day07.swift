@@ -14,8 +14,7 @@ private enum Operator: String, CaseIterable {
         case .multiply:
             return lhs * rhs
         case .concat:
-            let shiftBy = Int(pow(10, log10(Double(rhs)).rounded(.down) + 1))
-            return shiftBy * lhs + rhs
+            return lhs.shiftTensPlace(by: rhs.digitCount) + rhs
         }
     }
 
