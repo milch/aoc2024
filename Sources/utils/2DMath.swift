@@ -20,8 +20,23 @@ extension Array where Element: RandomAccessCollection, Element.Index == Int {
         PointsIterator(self)
     }
 
+    func line(from: Point, in direction: Direction) -> LineIterator<Self> {
+        LineIterator(self, start: from, in: direction)
+    }
+
     func containsPoint(_ point: Point) -> Bool {
         indices.contains(point.x) && self[point.x].indices.contains(point.y)
+    }
+
+    func pointsSurrounding(_ point: Point, corner: Direction) -> [Point] {
+        let vertical = corner.verticalComponent()
+        let horizontal = corner.horizontalComponent()
+        return [
+            point &+ vertical.vector,
+            point &+ horizontal.vector,
+            point &+ vertical.vector &+ horizontal.vector,
+            point,
+        ].filter { containsPoint($0) }
     }
 }
 
@@ -44,6 +59,30 @@ where T.Index == Int, T.Element: RandomAccessCollection, T.Element.Index == Int 
                 currentPoint.y = 0
                 currentPoint.x += 1
             }
+        }
+
+        if let element = safeGet(grid, currentPoint) {
+            return (currentPoint, element)
+        }
+        return nil
+    }
+}
+
+struct LineIterator<T: RandomAccessCollection>: IteratorProtocol, Sequence
+where T.Index == Int, T.Element: RandomAccessCollection, T.Element.Index == Int {
+    let grid: T
+    let direction: Direction
+    var currentPoint: Point
+
+    init(_ grid: T, start: Point, in direction: Direction) {
+        self.grid = grid
+        self.currentPoint = start
+        self.direction = direction
+    }
+
+    mutating func next() -> (Point, T.Element.Element)? {
+        defer {
+            currentPoint &+= direction.vector
         }
 
         if let element = safeGet(grid, currentPoint) {
@@ -80,7 +119,44 @@ enum Direction: CaseIterable {
     static var allCardinal: [Direction] {
         [.north, .east, .south, .west]
     }
+
+    static var allDiagonal: [Direction] {
+        [.northEast, .southEast, .southWest, .northWest]
+    }
+
+    func horizontalComponent() -> Direction {
+        switch self {
+        case .east, .northEast, .southEast:
+            return .east
+        case .west, .northWest, .southWest:
+            return .west
+        default:
+            fatalError("No valid horizontal component for \(self)")
+        }
+    }
+
+    func verticalComponent() -> Direction {
+        switch self {
+        case .north, .northEast, .northWest:
+            return .north
+        case .south, .southEast, .southWest:
+            return .south
+        default:
+            fatalError("No valid vertical component for \(self)")
+        }
+    }
+
+    var isDiagonal: Bool {
+        switch self {
+        case .northEast, .southEast, .southWest, .northWest:
+            return true
+        default:
+            return false
+        }
+    }
 }
+
+typealias PointF = SIMD2<Float>
 
 extension Point {
     func rotated(by degrees: Float) -> Point {
@@ -117,5 +193,12 @@ extension Point {
 
     var magnitude: Int {
         return Int(sqrt(Float(self.x * self.x + self.y * self.y)).rounded())
+    }
+
+    func corner(in direction: Direction) -> PointF {
+        let vector = direction.vector
+        let x = Float(self.x) + 0.5 * Float(vector.x)
+        let y = Float(self.y) + 0.5 * Float(vector.y)
+        return PointF(x, y)
     }
 }

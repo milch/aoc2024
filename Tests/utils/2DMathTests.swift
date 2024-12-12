@@ -69,6 +69,55 @@ import Testing
         #expect(val == nil)
     }
 
+    @Test func testLineIterator() {
+        let grid: [[Int]] = [
+            [1, 2, 3],
+            [4, 5, 6],
+            [7, 8, 9],
+        ]
+        let topLine = grid.line(from: [0, 0], in: .east)
+        #expect(topLine.map { $0.1 } == [1, 2, 3])
+        let bottomLine = grid.line(from: [2, 2], in: .west)
+        #expect(bottomLine.map { $0.1 } == [9, 8, 7])
+        var topLeftCorner = grid.line(from: [0, 0], in: .north)
+        #expect(topLeftCorner.next()?.0 == .some([0, 0]))
+        #expect(topLeftCorner.next() == nil)
+        let middleToBottom = grid.line(from: [1, 1], in: .south)
+        #expect(middleToBottom.map { $0.1 } == [5, 8])
+    }
+
+    @Test func testSurroundingElements() {
+        let grid: [[Int]] = [
+            [1, 2, 3],
+            [4, 5, 6],
+            [7, 8, 9],
+        ]
+        #expect(Set(grid.pointsSurrounding([0, 0], corner: .northEast)) == [[0, 0], [0, 1]])
+        #expect(Set(grid.pointsSurrounding([0, 0], corner: .northWest)) == [[0, 0]])
+        #expect(
+            Set(grid.pointsSurrounding([0, 0], corner: .southEast)) == [
+                [0, 0], [0, 1], [1, 0], [1, 1],
+            ])
+        #expect(Set(grid.pointsSurrounding([0, 0], corner: .southWest)) == [[0, 0], [1, 0]])
+
+        #expect(
+            Set(grid.pointsSurrounding([1, 1], corner: .northEast)) == [
+                [0, 1], [0, 2], [1, 1], [1, 2],
+            ])
+        #expect(
+            Set(grid.pointsSurrounding([1, 1], corner: .northWest)) == [
+                [0, 0], [0, 1], [1, 0], [1, 1],
+            ])
+        #expect(
+            Set(grid.pointsSurrounding([1, 1], corner: .southEast)) == [
+                [1, 1], [1, 2], [2, 1], [2, 2],
+            ])
+        #expect(
+            Set(grid.pointsSurrounding([1, 1], corner: .southWest)) == [
+                [1, 0], [1, 1], [2, 0], [2, 1],
+            ])
+    }
+
     @Test func testPointIteratorForInLoop() {
         let grid: [[Int]] = [
             [1, 2, 3],
@@ -132,5 +181,14 @@ import Testing
         #expect(!grid.containsPoint([0, 3]))
         #expect(!grid.containsPoint([3, 0]))
         #expect(!grid.containsPoint([3, 3]))
+    }
+
+    @Test func testCorner() {
+        #expect(Point([0, 0]).corner(in: .northEast) == PointF(-0.5, 0.5))
+        #expect(Point([0, 0]).corner(in: .southEast) == PointF(0.5, 0.5))
+        #expect(Point([0, 0]).corner(in: .southWest) == PointF(0.5, -0.5))
+        #expect(Point([0, 0]).corner(in: .northWest) == PointF(-0.5, -0.5))
+
+        #expect(Point([0, 0]).corner(in: .southEast) == Point([1, 1]).corner(in: .northWest))
     }
 }
