@@ -1,13 +1,13 @@
 import Foundation
 import Parsing
 
-enum InstructionLabel: String, CaseIterable {
+private enum InstructionLabel: String, CaseIterable {
     case mul = "mul"
     case disable = "don't"
     case enable = "do"
 }
 
-struct Instruction: CustomDebugStringConvertible {
+private struct Instruction: CustomDebugStringConvertible {
     let label: InstructionLabel
     let lhs: Int?
     let rhs: Int?
@@ -38,7 +38,7 @@ struct Instruction: CustomDebugStringConvertible {
     }
 }
 
-struct InstructionParser: Parser {
+private struct InstructionParser: Parser {
     var body: some Parser<Substring, Instruction> {
         Parse(Instruction.init) {
             InstructionLabel.parser()
@@ -55,7 +55,7 @@ struct InstructionParser: Parser {
 }
 
 struct Day03: Solvable {
-    let instructions: [Instruction]
+    private let instructions: [Instruction]
 
     init(input: String) {
         var instructions: [Instruction] = []

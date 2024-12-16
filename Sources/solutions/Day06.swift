@@ -1,13 +1,13 @@
 import Foundation
 import Parsing
 
-enum Tile: String, CaseIterable {
+private enum Tile: String, CaseIterable {
     case empty = "."
     case obstruction = "#"
     case `guard` = "^"
 }
 
-struct MapParser: Parser {
+private struct MapParser: Parser {
     var body: some Parser<Substring, [[Tile]]> {
         Many {
             Many {
@@ -19,7 +19,7 @@ struct MapParser: Parser {
     }
 }
 
-struct Position: Equatable, Hashable {
+private struct Position: Equatable, Hashable {
     let guardPosition: Point
     let directionVector: Point
 }
@@ -30,7 +30,7 @@ enum PathResult {
 }
 
 struct Day06: Solvable {
-    let map: [[Tile]]
+    private let map: [[Tile]]
     let guardStartPosition: Point
     /// Key: row, value: columns in that row for which there is an obstruction
     let obstructionsByRow: [Int: [Int]]
