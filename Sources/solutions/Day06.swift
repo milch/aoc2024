@@ -7,18 +7,6 @@ private enum Tile: String, CaseIterable {
     case `guard` = "^"
 }
 
-private struct MapParser: Parser {
-    var body: some Parser<Substring, [[Tile]]> {
-        Many {
-            Many {
-                Tile.parser()
-            }
-        } separator: {
-            "\n"
-        }
-    }
-}
-
 private struct Position: Equatable, Hashable {
     let guardPosition: Point
     let directionVector: Point
@@ -38,7 +26,7 @@ struct Day06: Solvable {
     let obstructionsByColumn: [Int: [Int]]
 
     init(input: String) {
-        self.map = try! MapParser().parse(input)
+        self.map = try! MapParser<Tile>().parse(input)
         self.guardStartPosition = self.map.points().first { $0.1 == .guard }!.0
 
         let obstructionLocations = self.map.points().filter { $1 == .obstruction }.map { $0.0 }

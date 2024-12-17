@@ -13,20 +13,6 @@ private enum Tile: String, CustomDebugStringConvertible, CaseIterable {
     }
 }
 
-private struct Day16Parser: Parser {
-    var body: some Parser<Substring, [[Tile]]> {
-        Many {
-            Many {
-                Tile.parser()
-            }
-        } separator: {
-            "\n"
-        } terminator: {
-            Optionally { "\n" }
-        }
-    }
-}
-
 private struct Path: Equatable, Comparable {
     static func == (lhs: Path, rhs: Path) -> Bool {
         lhs.current == rhs.current && lhs.facing == rhs.facing && lhs.costSoFar == rhs.costSoFar
@@ -67,7 +53,7 @@ struct Day16: Solvable {
     private let costMaps = Box([Point: [DirectionalPoint: Int]]())
 
     init(input: String) {
-        map = try! Day16Parser().parse(input)
+        map = try! MapParser<Tile>().parse(input)
         startPoint = map.points().first { $0.1 == .start }!.0
         endPoint = map.points().first { $0.1 == .end }!.0
     }
