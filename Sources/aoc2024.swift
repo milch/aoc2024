@@ -36,6 +36,7 @@ struct aoc2024: AsyncParsableCommand {
             14: Day14.self,
             15: Day15.self,
             16: Day16.self,
+            17: Day17.self,
         ]
         return solvers[day]
     }

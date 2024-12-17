@@ -11,6 +11,7 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.2.0"),
         .package(url: "https://github.com/pointfreeco/swift-parsing.git", from: "0.13.0"),
         .package(url: "https://github.com/apple/swift-collections.git", from: "1.1.4"),
+        .package(url: "https://github.com/apple/swift-algorithms", from: "1.2.0"),
     ],
     targets: [
         .executableTarget(
@@ -19,6 +20,7 @@ let package = Package(
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "Parsing", package: "swift-parsing"),
                 .product(name: "Collections", package: "swift-collections"),
+                .product(name: "Algorithms", package: "swift-algorithms"),
             ]
         ),
         .testTarget(
