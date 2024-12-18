@@ -156,44 +156,28 @@ struct Day17: Solvable {
     }
 
     func solvePart1() async -> Int {
-        // let outputs = runComputer()
-        let outputs = runOptimized(a: computer.a)
+        let outputs = runComputer()
         let str = outputs.map { String($0) }.joined(separator: ",")
         print("Outputs: \(str)")
         return 0
     }
 
-    func runOptimized(a: Int) -> [Int] {
-        var a = a
-        var b = 0
-        var c = 0
-        var out = [Int]()
-        while true {
-            b = a % 8
-            b = b ^ 1
-            c = a / Int(pow(2.0, Double(b)))
-            b = b ^ 5
-            b = b ^ c
-            out.append(b % 8)
-
-            a /= 8
-            if a == 0 {
-                break
-            }
-        }
-        return out
-    }
-
-    func b(a: Int) -> Int {
-        var b = a % 8
-        b = b ^ 1
-        let c = a / Int(pow(2.0, Double(b)))
-        b = b ^ 5
-        b = b ^ c
-        return b % 8
-    }
-
     func solvePart2() async -> Int {
-        return 0
+        let significantBits = 0b11_11111111
+        let result = computer.instructions.reversed().reduce(0) { (a, val) in
+            let candidate = (0..<significantBits).first {
+                runComputer(aRegister: a << 3 + $0)[0] == val
+            }
+            if let candidate = candidate {
+                return a << 3 + candidate
+            }
+
+            fatalError("Could not find a value for: \(val)")
+        }
+        let found = (result...result + significantBits).first { a in
+            runComputer(aRegister: a) == computer.instructions.map { Int($0) }
+        }
+
+        return found!
     }
 }
